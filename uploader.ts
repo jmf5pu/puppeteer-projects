@@ -1,5 +1,4 @@
 import {read_file, type_and_wait, upload_video_from_studio_home } from "./utils";
-
 const { Page } = require('puppeteer');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
@@ -23,10 +22,8 @@ const paths_path = <string>process.env.PATHS_PATH;
   });
   const page = (await browser.pages())[0];
 
-  
-  // navigation and google auth
+  console.log(`logging in to youtube studio`)
   await page.goto('https://studio.youtube.com');
-  //await sleep(10000); //captcha
   await type_and_wait(page, '[type=email]', google_email, 5000, true);
   await type_and_wait(page, '[type=password]', google_pw, 10000, true);
 
@@ -34,12 +31,12 @@ const paths_path = <string>process.env.PATHS_PATH;
 
   if(paths.length != titles.length || titles.length != descriptions.length) throw new Error("Found a different number of videos, titles, or descriptions");
 
-  // upload all videos found in the `paths` file
   for(var i = 0; i < paths.length; i++){
     console.log(`uploading video at ${paths[i]}`);
     await upload_video_from_studio_home(page, paths[i], titles[i], descriptions[i]);
   }
 
+  console.log(`all videos uploaded successfully, exiting`)
   await browser.close();
 
 })();
