@@ -1,5 +1,4 @@
 import {read_file, type_and_wait, upload_video_from_studio_home } from "./utils";
-const { Page } = require('puppeteer');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 require('dotenv').config();
@@ -8,9 +7,9 @@ require('dotenv').config();
 const chromium_path = <string>process.env.CHROMIUM_PATH;
 const google_email = <string>process.env.GOOGLE_EMAIL;
 const google_pw = <string>process.env.GOOGLE_PW;
-const titles_path = <string>process.env.TITLES_PATH;
-const descriptions_path = <string>process.env.DESCRIPTIONS_PATH;
-const paths_path = <string>process.env.PATHS_PATH;
+const titles_path = "./titles.txt";
+const descriptions_path = "./descriptions.txt";
+const paths_path = "./paths.txt";
 
 // main script
 (async () => {
@@ -38,5 +37,4 @@ const paths_path = <string>process.env.PATHS_PATH;
 
   console.log(`all videos uploaded successfully, exiting`)
   await browser.close();
-
 })();
