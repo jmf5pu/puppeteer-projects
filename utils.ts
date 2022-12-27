@@ -1,6 +1,7 @@
 import * as fs from 'fs'; 
 
 export async function sleep(ms: number) {
+  console.log(`\t* sleeping for ${ms} ms`)
   return new Promise(resolve => setTimeout(resolve, ms));
 } 
   
@@ -11,6 +12,12 @@ export function read_file(file_name: string): string[]{
   var file_text = fs.readFileSync(file_name,'utf8');
   var lines = file_text.replace(/\r/gi,"").split("\n")
   return lines
+}
+
+export function write_file(file_name: string, array_of_strings: string[]): void{
+  var file = fs.createWriteStream(file_name);
+  array_of_strings.forEach(function(v) { file.write(v + '\n'); });
+  file.end();
 }
 
 export async function type_and_wait(page: any, target_selector: string, input_text: string, wait_ms: number, press_enter: boolean=false): Promise<void>{
@@ -27,9 +34,20 @@ export async function type_and_wait(page: any, target_selector: string, input_te
 export async function click_and_wait(page: any, target_selector: string, wait_ms: number, click_count: number=1): Promise<void>{
   /*
   clicks a selector on the screen and and then waits
+  if_present: check if selector is present before clicking
   */
   await page.click(target_selector,{clickCount:click_count});
   await sleep(wait_ms);
+}
+
+export async function click_and_wait_if_present(page: any, target_selector: string, wait_ms: number, click_count: number=1): Promise<void>{
+  /*
+  clicks the selector if present, will NOT fail loudly if not present
+  */
+  try{
+    await click_and_wait(page, target_selector, wait_ms, click_count);
+  }
+  catch{}
 }
   
 export async function upload_video_from_studio_home(page: any, file_path: string, video_title: string, video_description: string): Promise<void>{
