@@ -5,6 +5,11 @@ require('dotenv').config();
 
 const chromium_path = <string>process.env.CHROMIUM_PATH;
 const proxies = read_file("./proxies.txt")
+const args = process.argv.slice(2)
+const min_view_s: number = parseInt(args[0])
+const max_view_s: number = parseInt(args[1])
+const show_logs: boolean = ["n","no","f","false"].includes(args[2].toLowerCase()) ? false : true
+const filter_proxies: boolean = ["n","no","f","false"].includes(args[3].toLowerCase()) ? false : true
 
 function _get_random_view_time(min_ms: number, max_ms: number): number {
   /*
@@ -13,11 +18,17 @@ function _get_random_view_time(min_ms: number, max_ms: number): number {
   return min_ms + Math.floor(Math.random() * (max_ms - min_ms));
 }
 
+function _conditional_logging(message: string): void{
+  if(show_logs){
+    console.log(message);
+  }
+}
+
 async function main(){
   puppeteer.use(StealthPlugin());
   var working_proxies: string[] = [];
   var search_strings = read_file("./search_strings.txt");
-  console.log(`\t* ${search_strings.length} proxies were found`);
+  _conditional_logging(`\t* ${proxies.length} proxies were found`);
   var [count, successes] = [0,0];
   for (var proxy of proxies) {
     // setup
@@ -33,7 +44,7 @@ async function main(){
     });
 
     try {
-      var view_time_ms = _get_random_view_time(120000, 240000); //2 to 4 minutes
+      var view_time_ms = _get_random_view_time(min_view_s*1000, max_view_s*1000); // get view duration
       const page = (await browser.pages())[0];
       await page.goto('https://www.youtube.com/results?search_query=' + search_strings[count%search_strings.length]);
       await sleep(6000);
@@ -57,19 +68,22 @@ async function main(){
 
       // cleanup
       await browser.close();
-      console.log(`(${count}): ${proxy} succeeded`);
+      _conditional_logging(`(${count}): ${proxy} succeeded`);
       working_proxies.push(proxy);
       successes += 1;
     }
     catch {
-      console.log(`(${count}): ${proxy} failed`);
+      _conditional_logging(`(${count}): ${proxy} failed`);
       await browser.close();
 
     }
   }
   // save the proxies that worked
-  write_file("./proxies.txt",working_proxies);
-  console.log(`working proxies were saved. SUCCEEDED: ${successes}`);
+  if (filter_proxies){
+    write_file("./proxies.txt",working_proxies);
+    _conditional_logging(`working proxies were saved.`);
+  }
+  _conditional_logging(`SUCCEEDED: ${successes}`);
 }
 
 main()
