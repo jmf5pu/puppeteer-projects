@@ -11,11 +11,11 @@ const max_view_s: number = parseInt(args[1])
 const show_logs: boolean = ["n","no","f","false"].includes(args[2].toLowerCase()) ? false : true
 const filter_proxies: boolean = ["n","no","f","false"].includes(args[3].toLowerCase()) ? false : true
 
-function _get_random_view_time(min_ms: number, max_ms: number): number {
+function _get_random_number(min: number, max: number): number {
   /*
-  For randomizing view time, generates a random number between the specified max and min
+  generates a random number between the specified max and min (inclusive))
   */
-  return min_ms + Math.floor(Math.random() * (max_ms - min_ms));
+  return min + Math.floor(Math.random() * (max+1 - min));
 }
 
 function _conditional_logging(message: string): void{
@@ -44,9 +44,9 @@ async function main(){
     });
 
     try {
-      var view_time_ms = _get_random_view_time(min_view_s*1000, max_view_s*1000); // get view duration
+      var view_time_ms = _get_random_number(min_view_s*1000, max_view_s*1000); // get view duration in ms
       const page = (await browser.pages())[0];
-      await page.goto('https://www.youtube.com/results?search_query=' + search_strings[count%search_strings.length]);
+      await page.goto('https://www.youtube.com/results?search_query=' + search_strings[_get_random_number(0, search_strings.length-1)]);
       await sleep(6000);
 
       // click accept on cookies popup if present

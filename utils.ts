@@ -1,7 +1,6 @@
 import * as fs from 'fs'; 
 
 export async function sleep(ms: number) {
-  console.log(`\t* sleeping for ${ms} ms`)
   return new Promise(resolve => setTimeout(resolve, ms));
 } 
   
